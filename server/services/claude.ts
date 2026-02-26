@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { ScrapedArticle, DeepDive } from "../../shared/types.js";
+import type { ScrapedArticle, DeepDive, ContentSection } from "../../shared/types.js";
 
 const CHAPTERS_LIST = `1. Thinking Like an Economist (Econ Thinking)
 2. Comparative Advantage (Comp. Advantage)
@@ -20,7 +20,7 @@ const CHAPTERS_LIST = `1. Thinking Like an Economist (Econ Thinking)
 const client = new Anthropic();
 
 interface ClaudeAnalysis {
-  simplifiedContent: string;
+  sections: ContentSection[];
   tags: number[];
   tagExplanation: string;
   deepDives: DeepDive[];
@@ -39,7 +39,12 @@ ${contentPreview}
 Analyze this article and respond with ONLY valid JSON (no markdown, no backticks) in this exact structure:
 
 {
-  "simplifiedContent": "Rewrite the article in simple, easy-to-understand language (3-5 paragraphs). Explain the underlying economic forces and chain of cause-and-effect. For example: 'Fewer cars are being made because the materials to build them cost more, which happened because the government added extra taxes (called tariffs) on imported goods, and global supply chains are still disrupted from conflicts in Europe.' Wrap 4-6 key economic terms in double curly braces like {{Tariffs}} or {{Supply Chain}}. These should be important economics concepts that deserve deeper explanation.",
+  "sections": [
+    { "heading": "What's Happening", "body": "A clear, simple summary of the news event in 2-3 sentences. What took place and who is involved?" },
+    { "heading": "Why It Matters", "body": "Explain the economic significance. Why should a regular person care? How does this affect everyday life, prices, or jobs?" },
+    { "heading": "The Economics Behind It", "body": "Break down the underlying economic forces and cause-and-effect chain. For example: 'Fewer cars are being made because the materials to build them cost more, which happened because the government added extra taxes (called {{Tariffs}}) on imported goods.' Use {{Term}} syntax to wrap 4-6 key economics concepts." },
+    { "heading": "What Could Happen Next", "body": "Briefly outline possible outcomes or what to watch for going forward." }
+  ],
   "tags": [15, 3],
   "tagExplanation": "Brief explanation of why these economics topics apply to this article",
   "deepDives": [
@@ -58,8 +63,9 @@ Available Economics Topics (use chapter IDs, pick up to 3 most relevant):
 ${CHAPTERS_LIST}
 
 Rules:
-- simplifiedContent must be written for someone with NO economics background
-- Every {{term}} in simplifiedContent MUST have a matching entry in deepDives
+- sections must be written for someone with NO economics background
+- Every {{term}} across all section bodies MUST have a matching entry in deepDives
+- Spread the {{term}} markers across sections naturally (not all in one section)
 - tags array: 1-3 chapter IDs (numbers only)
 - deepDives: one object per highlighted term
 - Keep explanations conversational and jargon-free
@@ -90,7 +96,7 @@ Rules:
   }
 
   // Validate and sanitize
-  if (!analysis.simplifiedContent || !Array.isArray(analysis.tags) || !Array.isArray(analysis.deepDives)) {
+  if (!Array.isArray(analysis.sections) || !Array.isArray(analysis.tags) || !Array.isArray(analysis.deepDives)) {
     throw new Error("Invalid response structure from Claude");
   }
 

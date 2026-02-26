@@ -30,7 +30,7 @@ router.post("/api/simplify", async (req, res) => {
     const response: SimplifyResponse = {
       title: article.title,
       originalContent: article.content,
-      simplifiedContent: analysis.simplifiedContent,
+      simplifiedContent: analysis.sections,
       tags: analysis.tags,
       tagExplanation: analysis.tagExplanation,
       deepDives: analysis.deepDives,

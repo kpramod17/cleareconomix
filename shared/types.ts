@@ -7,10 +7,15 @@ export interface DeepDive {
   historicalContext: string;
 }
 
+export interface ContentSection {
+  heading: string;
+  body: string;
+}
+
 export interface SimplifyResponse {
   title: string;
   originalContent: string;
-  simplifiedContent: string;
+  simplifiedContent: ContentSection[];
   tags: number[];
   tagExplanation: string;
   deepDives: DeepDive[];

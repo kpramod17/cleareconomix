@@ -52,7 +52,7 @@ export default function ArticleView({ result, onTermClick }: ArticleViewProps) {
             Click underlined terms for deep dives
           </p>
           <SimplifiedContent
-            content={result.simplifiedContent}
+            sections={result.simplifiedContent}
             onTermClick={onTermClick}
           />
         </div>
